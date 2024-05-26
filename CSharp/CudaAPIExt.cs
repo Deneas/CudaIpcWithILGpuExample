@@ -128,6 +128,19 @@
         {
             private Byte Element;
         }
+
+        public readonly override string ToString() => Convert.ToHexString(Data);
+        
+        public static CudaIpcMemHandle FromHexString(string hexString)
+        {
+            var actualHandle = Convert.FromHexString(hexString);
+            ArgumentOutOfRangeException.ThrowIfNotEqual(actualHandle.Length, 64, nameof(hexString));
+
+            var ipcMemHandle = new CudaIpcMemHandle();
+            actualHandle.CopyTo(ipcMemHandle.Data);
+
+            return ipcMemHandle;
+        }
     }
 
     /// <summary>
