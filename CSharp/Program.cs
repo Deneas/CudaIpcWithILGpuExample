@@ -1,4 +1,5 @@
-﻿using ILGPU;
+﻿using CSharp;
+using ILGPU;
 using ILGPU.Runtime;
 using ILGPU.Runtime.Cuda;
 
@@ -36,8 +37,27 @@ accelerator.Synchronize();
 // moved output data from the GPU to the CPU for output to console
 int[] hostOutput = deviceOutput.GetAsArray1D();
 
-for(int i = 0; i < 50; i++)
+Console.WriteLine(String.Join(" ",hostOutput[..50]));
+
+
+var cudaError = accelerator.IpcGetMemHandle(out var ipcMemHandle, deviceOutput.NativePtr);
+Console.WriteLine($"{cudaError} | {ipcMemHandle}");
+// CUDA_SUCCESS | 8087A46657020000E869000000000000409C0000000000000002000000020000001000000000000027000000000000000C060000000000008007004000000000
+
+// Using a hex string for copy/paste IPC
+// Replace with your own
+var externalIpcMemHandle = CudaIpcMemHandle.FromHexString(
+    "90ae13833a02000004160000000000009001000000000000000200000000000000100000000000002700000000000000b4010000000000004002004000000000");
+// A float32 array with 100 elements was allocated in python.
+if (accelerator.TryCreateBufferFromIpcMemHandle(out var externalBuffer, externalIpcMemHandle, 100, 04))
 {
-    Console.Write(hostOutput[i]);
-    Console.Write(" ");
+    float[] cpuBuffer = new float[100];
+    externalBuffer.AsArrayView<float>(0,100)
+        .CopyToCPU(cpuBuffer);
+    Console.WriteLine(String.Join(" ",cpuBuffer[..5]));
+    // 1 2 3 4 5
+}
+else
+{
+    Console.WriteLine("This won't work in the same process!");
 }
