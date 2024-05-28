@@ -121,23 +121,29 @@
     /// </summary>
     public struct CudaIpcMemHandle
     {
-        public Handle Data;
-    
+        public Handle Data { get; set; }
+
         [InlineArray(64)]
         public struct Handle
         {
             private Byte Element;
         }
 
-        public readonly override string ToString() => Convert.ToHexString(Data);
-        
+        public readonly override string ToString()
+        {
+            var bytes = Data;
+            return Convert.ToHexString(bytes);
+        }
+
         public static CudaIpcMemHandle FromHexString(string hexString)
         {
             var actualHandle = Convert.FromHexString(hexString);
             ArgumentOutOfRangeException.ThrowIfNotEqual(actualHandle.Length, 64, nameof(hexString));
 
             var ipcMemHandle = new CudaIpcMemHandle();
-            actualHandle.CopyTo(ipcMemHandle.Data);
+            var destination = ipcMemHandle.Data;
+            actualHandle.CopyTo(destination);
+            ipcMemHandle.Data = destination;
 
             return ipcMemHandle;
         }

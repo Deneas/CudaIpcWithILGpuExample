@@ -49,15 +49,19 @@ Console.WriteLine($"{cudaError} | {ipcMemHandle}");
 var externalIpcMemHandle = CudaIpcMemHandle.FromHexString(
     "90ae13833a02000004160000000000009001000000000000000200000000000000100000000000002700000000000000b4010000000000004002004000000000");
 // A float32 array with 100 elements was allocated in python.
-if (accelerator.TryCreateBufferFromIpcMemHandle(out var externalBuffer, externalIpcMemHandle, 100, 04))
+try
 {
+    // Alternatively you could directly allocate the new buffer with
+    // new CudaIpcMemoryBuffer(accelerator, externalIpcMemHandle, 100, 4)
+    var externalBuffer = accelerator.MapIpc(externalIpcMemHandle, 100, 4);
     float[] cpuBuffer = new float[100];
-    externalBuffer.AsArrayView<float>(0,100)
+    var arrayView = externalBuffer.AsArrayView<float>(0, 100);
+    arrayView
         .CopyToCPU(cpuBuffer);
     Console.WriteLine(String.Join(" ",cpuBuffer[..5]));
     // 1 2 3 4 5
 }
-else
+catch
 {
     Console.WriteLine("This won't work in the same process!");
 }
