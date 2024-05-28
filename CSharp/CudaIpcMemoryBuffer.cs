@@ -103,7 +103,8 @@
             else
             {
                 CudaException.ThrowIfFailed(
-                    accelerator.IpcOpenMemHandle(
+                    CudaAPIExt.IpcOpenMemHandle(
+                        accelerator,
                         out IntPtr resultPtr,
                         ipcMemHandle,
                         CudaIpcMemFlags.LazyEnablePeerAccess));
@@ -145,7 +146,7 @@
         /// </summary>
         protected override void DisposeAcceleratorObject(bool disposing)
         {
-            var cudaStatus = ((CudaAccelerator)Accelerator).IpcCloseMemHandle(NativePtr);
+            var cudaStatus = CudaAPIExt.IpcCloseMemHandle(((CudaAccelerator)Accelerator), NativePtr);
             if (disposing)
                 CudaException.ThrowIfFailed(cudaStatus);
             NativePtr = IntPtr.Zero;

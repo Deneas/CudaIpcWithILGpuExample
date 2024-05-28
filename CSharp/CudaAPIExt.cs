@@ -63,7 +63,7 @@
         /// <returns>CUDA result code</returns>
         /// <remarks>This will zero the memory in the buffer!</remarks>
         public static CudaError IpcGetMemHandle(
-            this CudaAccelerator cudaAccelerator,
+            CudaAccelerator cudaAccelerator,
             out CudaIpcMemHandle ipcMemHandle,
             IntPtr devPtr)
         {
@@ -84,7 +84,7 @@
         /// <remarks>This will not work with an IPC handle from the same process.</remarks>
         public static
             CudaError IpcOpenMemHandle(
-                this CudaAccelerator cudaAccelerator,
+                CudaAccelerator cudaAccelerator,
                 out IntPtr devPtr,
                 CudaIpcMemHandle ipcMemHandle,
                 CudaIpcMemFlags flags)
@@ -106,7 +106,7 @@
         /// </remarks>
         public static
             CudaError IpcCloseMemHandle(
-                this CudaAccelerator cudaAccelerator,
+                CudaAccelerator cudaAccelerator,
                 IntPtr devPtr)
         {
             cudaAccelerator.Bind();
